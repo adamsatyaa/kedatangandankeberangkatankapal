@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Marine Port Monitoring System</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<style>
+
+body{
+    background:#f4f7fa;
+}
+
+.navbar{
+    background:#003366;
+}
+
+.navbar-brand{
+    color:white;
+    font-weight:bold;
+}
+
+.card{
+    margin-bottom:20px;
+}
+
+#map{
+    height:500px;
+    width:100%;
+}
+
+.status-berth{
+    color:green;
+    font-weight:bold;
+}
+
+.status-anchor{
+    color:orange;
+    font-weight:bold;
+}
+
+.status-underway{
+    color:blue;
+    font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg">
+<div class="container-fluid">
+<a class="navbar-brand" href="#">
+🚢 Marine Port Monitoring System
+</a>
+</div>
+</nav>
+
+<div class="container-fluid mt-4">
+
+<div class="row">
+
+<div class="col-md-3">
+
+<div class="card">
+<div class="card-header">
+Pencarian Kapal
+</div>
+
+<div class="card-body">
+
+<input type="text"
+class="form-control mb-2"
+id="searchShip"
+placeholder="Nama Kapal / IMO / MMSI">
+
+<select class="form-control mb-2"
+id="searchPort">
+<option>Semua Pelabuhan</option>
+<option>Tanjung Perak</option>
+<option>Tanjung Priok</option>
+<option>Makassar</option>
+<option>Belawan</option>
+</select>
+
+<button class="btn btn-primary w-100">
+Cari
+</button>
+
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+Cuaca Maritim
+</div>
+
+<div class="card-body">
+
+<h6>Pelabuhan Tanjung Perak</h6>
+
+<p>
+🌡️ Suhu : 30°C
+</p>
+
+<p>
+🌊 Gelombang : 1.2 m
+</p>
+
+<p>
+💨 Angin : 15 knot
+</p>
+
+<p>
+🌧️ Cuaca : Cerah Berawan
+</p>
+
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+Pasang Surut
+</div>
+
+<div class="card-body">
+
+<canvas id="tideChart"></canvas>
+
+</div>
+</div>
+
+</div>
+
+<div class="col-md-9">
+
+<div class="card">
+<div class="card-header">
+Live Vessel Tracking (AIS)
+</div>
+
+<div class="card-body">
+
+<div id="map"></div>
+
+</div>
+</div>
+
+<div class="card">
+
+<div class="card-header">
+Jadwal Kedatangan & Keberangkatan
+</div>
+
+<div class="card-body">
+
+<table class="table table-bordered">
+
+<thead>
+
+<tr>
+<th>Nama Kapal</th>
+<th>No Pelayaran</th>
+<th>Asal</th>
+<th>Tujuan</th>
+<th>ETA</th>
+<th>ETD</th>
+<th>Status</th>
+</tr>
+
+</thead>
+
+<tbody id="scheduleTable">
+
+<tr>
+
+<td>KM Nusantara</td>
+<td>NP-1001</td>
+<td>Makassar</td>
+<td>Surabaya</td>
+<td>08:30</td>
+<td>12:00</td>
+
+<td class="status-underway">
+Underway
+</td>
+
+</tr>
+
+<tr>
+
+<td>MV Jakarta Express</td>
+<td>IMO9876543</td>
+<td>Singapore</td>
+<td>Tanjung Perak</td>
+<td>14:00</td>
+<td>18:00</td>
+
+<td class="status-berth">
+At Berth
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="card-header">
+Detail Kapal
+</div>
+
+<div class="card-body">
+
+<div class="row">
+
+<div class="col-md-6">
+
+<table class="table">
+
+<tr>
+<td>Nama Kapal</td>
+<td>MV Jakarta Express</td>
+</tr>
+
+<tr>
+<td>IMO</td>
+<td>9876543</td>
+</tr>
+
+<tr>
+<td>Bendera</td>
+<td>Indonesia</td>
+</tr>
+
+<tr>
+<td>Tahun</td>
+<td>2018</td>
+</tr>
+
+</table>
+
+</div>
+
+<div class="col-md-6">
+
+<table class="table">
+
+<tr>
+<td>GT</td>
+<td>25.000</td>
+</tr>
+
+<tr>
+<td>DWT</td>
+<td>40.000</td>
+</tr>
+
+<tr>
+<td>TEUs</td>
+<td>2.500</td>
+</tr>
+
+<tr>
+<td>Status</td>
+<td>At Berth</td>
+</tr>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="card-header">
+Notifikasi Jadwal
+</div>
+
+<div class="card-body">
+
+<form>
+
+<input type="email"
+class="form-control mb-2"
+placeholder="Email">
+
+<input type="text"
+class="form-control mb-2"
+placeholder="IMO / Nama Kapal">
+
+<select class="form-control mb-2">
+<option>Keterlambatan</option>
+<option>Perubahan Rute</option>
+<option>Keberangkatan</option>
+<option>Kedatangan</option>
+</select>
+
+<button class="btn btn-success">
+Berlangganan Notifikasi
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+
+var map = L.map('map').setView([-7.2575,112.7521],7);
+
+L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+).addTo(map);
+
+var shipMarker = L.marker(
+[-7.25,112.75]
+).addTo(map);
+
+shipMarker.bindPopup(
+"MV Jakarta Express"
+);
+
+async function loadRealtimeData(){
+
+    try{
+
+        const response =
+        await fetch('/api/vessels');
+
+        const data =
+        await response.json();
+
+        console.log(data);
+
+    }
+    catch(error){
+
+        console.error(error);
+
+    }
+
+}
+
+setInterval(
+loadRealtimeData,
+30000
+);
+
+</script>
+
+</body>
+</html>
