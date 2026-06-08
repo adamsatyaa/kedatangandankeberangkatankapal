@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Kapal Real-Time</title>
+
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            background:#f4f4f4;
+            padding:20px;
+        }
+
+        h1{
+            text-align:center;
+            color:#003366;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            background:white;
+        }
+
+        th, td{
+            padding:12px;
+            border:1px solid #ddd;
+            text-align:center;
+        }
+
+        th{
+            background:#003366;
+            color:white;
+        }
+
+        .berangkat{
+            color:green;
+            font-weight:bold;
+        }
+
+        .tiba{
+            color:blue;
+            font-weight:bold;
+        }
+
+        .terlambat{
+            color:red;
+            font-weight:bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Jadwal Keberangkatan & Kedatangan Kapal</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nama Kapal</th>
+                <th>Rute</th>
+                <th>Waktu</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody id="jadwal-kapal">
+        </tbody>
+    </table>
+
+    <script>
+
+        async function loadJadwal() {
+
+            try {
+
+                const response = await fetch(
+                    "https://api-domain-anda.com/jadwal-kapal"
+                );
+
+                const data = await response.json();
+
+                let html = "";
+
+                data.forEach(kapal => {
+
+                    html += `
+                    <tr>
+                        <td>${kapal.nama}</td>
+                        <td>${kapal.rute}</td>
+                        <td>${kapal.waktu}</td>
+                        <td class="${kapal.status.toLowerCase()}">
+                            ${kapal.status}
+                        </td>
+                    </tr>
+                    `;
+                });
+
+                document.getElementById("jadwal-kapal").innerHTML = html;
+
+            } catch(error){
+                console.error("Gagal mengambil data:", error);
+            }
+        }
+
+        // Load pertama
+        loadJadwal();
+
+        // Refresh data setiap 30 detik
+        setInterval(loadJadwal, 30000);
+
+    </script>
+
+</body>
+</html>
